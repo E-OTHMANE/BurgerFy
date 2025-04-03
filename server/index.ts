@@ -66,5 +66,12 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    
+    // Ensure ingredients are seeded on server start
+    import('./storage').then(({ storage }) => {
+      storage.seedIngredients()
+        .then(() => log('Ingredients seeded successfully'))
+        .catch(err => log(`Failed to seed ingredients: ${err.message}`));
+    });
   });
 })();

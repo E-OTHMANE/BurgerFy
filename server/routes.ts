@@ -1,8 +1,9 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertBurgerSchema, insertIngredientSchema } from "@shared/schema";
+import { insertBurgerSchema, insertOrderSchema, insertIngredientSchema } from "@shared/schema";
 import { z } from "zod";
+import { defaultIngredients } from "../client/src/data/ingredients";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all ingredients
@@ -68,10 +69,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create new order
   app.post("/api/orders", async (req, res) => {
     try {
-      const order = await storage.createOrder(req.body);
+      const parsedBody = insertOrderSchema.parse(req.body);
+      const order = await storage.createOrder(parsedBody);
       res.status(201).json(order);
     } catch (error) {
-      res.status(500).json({ message: "Failed to create order" });
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid order data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to create order" });
+      }
     }
   });
 

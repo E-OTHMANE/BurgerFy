@@ -1,22 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import IngredientCard from "./IngredientCard";
 import { categories } from "@/data/ingredients";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useBurgerStore } from "@/stores/burgerStore";
 
 export default function IngredientsPanel() {
   const [activeCategory, setActiveCategory] = useState("buns");
+  const { availableIngredients, fetchIngredients } = useBurgerStore();
+  const [loading, setLoading] = useState(true);
   
-  // Fetch ingredients from API
-  const { data: ingredients, isLoading } = useQuery({
-    queryKey: ["/api/ingredients"],
-    staleTime: Infinity,
-  });
+  // Initialize ingredients from the API when component mounts
+  useEffect(() => {
+    const initIngredients = async () => {
+      setLoading(true);
+      try {
+        await fetchIngredients();
+      } catch (error) {
+        console.error("Error fetching ingredients:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    initIngredients();
+  }, [fetchIngredients]);
   
   // Filter ingredients by active category
-  const filteredIngredients = ingredients?.filter(
+  const filteredIngredients = availableIngredients.filter(
     (ingredient) => ingredient.category === activeCategory
-  ) || [];
+  );
 
   return (
     <div className="bg-white w-full md:w-80 md:min-h-screen border-r border-gray-200 shadow-md flex flex-col">
@@ -44,7 +57,7 @@ export default function IngredientsPanel() {
       
       {/* Ingredients List */}
       <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
-        {isLoading ? (
+        {loading ? (
           // Loading skeletons
           <div className="grid grid-cols-2 gap-3">
             {[1, 2, 3, 4].map((i) => (
