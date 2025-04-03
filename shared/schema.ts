@@ -5,13 +5,19 @@ import { z } from "zod";
 // User schema
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
+  fullName: text("fullName").notNull(),
+  age: integer("age").notNull(),
   password: text("password").notNull(),
+  createdAt: text("createdAt").notNull(), // ISO date string
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
+  email: true,
+  fullName: true,
+  age: true,
   password: true,
+  createdAt: true,
 });
 
 // Ingredient schema

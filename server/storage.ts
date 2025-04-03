@@ -7,12 +7,16 @@ import {
 import { defaultIngredients } from "../client/src/data/ingredients";
 import { db } from "./db";
 import { eq, asc } from "drizzle-orm";
+import session from "express-session";
+import connectPg from "connect-pg-simple";
+import { pool } from "./db";
 
 // Storage interface with all CRUD methods needed for the app
 export interface IStorage {
   // User methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   
   // Ingredient methods
@@ -24,13 +28,26 @@ export interface IStorage {
   saveBurger(burger: InsertBurger): Promise<Burger>;
   getAllBurgers(): Promise<Burger[]>;
   getBurgerById(id: number): Promise<Burger | undefined>;
+  getBurgersByUserId(userId: number): Promise<Burger[]>;
   
   // Order methods
   createOrder(order: InsertOrder): Promise<Order>;
+  
+  // Session store
+  sessionStore: session.Store;
 }
 
 export class DatabaseStorage implements IStorage {
+  sessionStore: session.Store;
+  
   constructor() {
+    // Create PostgreSQL session store
+    const PostgresStore = connectPg(session);
+    this.sessionStore = new PostgresStore({
+      pool,
+      createTableIfMissing: true,
+    });
+    
     // Seed initial ingredients
     this.seedIngredients();
   }
@@ -42,7 +59,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
+    // Since we're using email for authentication, but keeping method name for compatibility
+    return this.getUserByEmail(username);
+  }
+  
+  // Added for email-based authentication
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
     return user || undefined;
   }
 
@@ -127,6 +150,10 @@ export class DatabaseStorage implements IStorage {
   async getBurgerById(id: number): Promise<Burger | undefined> {
     const [burger] = await db.select().from(burgers).where(eq(burgers.id, id));
     return burger || undefined;
+  }
+  
+  async getBurgersByUserId(userId: number): Promise<Burger[]> {
+    return db.select().from(burgers).where(eq(burgers.userId, userId));
   }
   
   // Order methods
