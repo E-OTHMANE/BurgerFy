@@ -1,7 +1,10 @@
 import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
+import { Separator } from "@/components/ui/separator";
 
 export default function WelcomePage() {
   const [_, setLocation] = useLocation();
+  const { user } = useAuth();
 
   return (
     <div className="welcome-container min-h-screen flex items-center justify-center text-white p-4 bg-cover bg-center"
@@ -16,11 +19,29 @@ export default function WelcomePage() {
           alt="Delicious burger" 
           className="rounded-xl w-64 h-64 object-cover mb-8 shadow-lg" 
         />
-        <button 
-          onClick={() => setLocation("/builder")}
-          className="bg-primary hover:bg-primary/90 text-white font-bold py-4 px-8 rounded-full text-xl transition-all transform hover:scale-105 animate-bounce-slow">
-          Welcome to BurgerFy
-        </button>
+        <div className="flex flex-col w-full gap-4">
+          <button 
+            onClick={() => setLocation("/builder")}
+            className="bg-primary hover:bg-primary/90 text-white font-bold py-4 px-8 rounded-full text-xl transition-all transform hover:scale-105 animate-bounce-slow">
+            Build Your Burger
+          </button>
+          
+          <Separator className="my-2" />
+          
+          <div className="grid grid-cols-2 gap-4">
+            <button 
+              onClick={() => setLocation("/explore")}
+              className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105">
+              Explore Creations
+            </button>
+            
+            <button 
+              onClick={() => setLocation(user ? "/profile" : "/auth")}
+              className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105">
+              {user ? "My Profile" : "Sign In"}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

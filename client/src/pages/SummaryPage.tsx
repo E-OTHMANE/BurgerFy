@@ -5,12 +5,15 @@ import { Input } from "@/components/ui/input";
 import { useBurgerStore } from "@/stores/burgerStore";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
+import { UserIcon, ShoppingCartIcon, HomeIcon } from "lucide-react";
 
 export default function SummaryPage() {
   const [_, setLocation] = useLocation();
   const { ingredients, clearIngredients } = useBurgerStore();
   const [burgerName, setBurgerName] = useState("");
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const handleEditBurger = () => {
     setLocation("/builder");
@@ -27,20 +30,30 @@ export default function SummaryPage() {
     }
     
     try {
-      // In a real app, we would save the burger to the database
-      // For now, we'll just show a success toast
-      // const response = await apiRequest("POST", "/api/burgers", {
-      //   name: burgerName,
-      //   userId: 1, // Mock user ID
-      //   ingredients: ingredients.map(ing => ing.id),
-      //   createdAt: new Date().toISOString()
-      // });
-      
-      toast({
-        title: "Success!",
-        description: `Your "${burgerName}" has been added to cart.`,
-        variant: "default",
-      });
+      // Check if user is logged in
+      if (user) {
+        // Save burger to database
+        await apiRequest("POST", "/api/burgers", {
+          name: burgerName,
+          ingredients: JSON.stringify(ingredients),
+        });
+        
+        // Invalidate burger queries
+        queryClient.invalidateQueries({ queryKey: ["/api/my-burgers"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/burgers"] });
+        
+        toast({
+          title: "Burger Saved!",
+          description: `Your "${burgerName}" has been saved and added to cart.`,
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Success!",
+          description: `Your "${burgerName}" has been added to cart.`,
+          variant: "default",
+        });
+      }
       
       // Clear ingredients and go back to welcome page
       clearIngredients();
@@ -59,14 +72,32 @@ export default function SummaryPage() {
       {/* Header */}
       <header className="bg-dark text-white p-4 shadow-md">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="font-display text-2xl md:text-3xl">BurgerFy</h1>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              className="text-accent hover:text-accent/80 p-2"
+              onClick={() => setLocation("/")}
+            >
+              <HomeIcon className="h-5 w-5" />
+            </Button>
+            <h1 className="font-display text-2xl md:text-3xl">BurgerFy</h1>
+          </div>
           <div className="flex items-center gap-4">
-            <button className="text-accent hover:text-accent/80 font-medium">
-              <i className="ri-menu-line mr-1"></i> Menu
-            </button>
-            <button className="text-accent hover:text-accent/80 font-medium">
-              <i className="ri-shopping-cart-2-line mr-1"></i> Cart
-            </button>
+            <Button 
+              variant="ghost" 
+              className="text-accent hover:text-accent/80 font-medium flex items-center gap-1"
+              onClick={() => setLocation(user ? "/profile" : "/auth")}
+            >
+              <UserIcon className="h-5 w-5" />
+              {user ? "Profile" : "Sign In"}
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="text-accent hover:text-accent/80 font-medium flex items-center gap-1"
+            >
+              <ShoppingCartIcon className="h-5 w-5" />
+              Cart
+            </Button>
           </div>
         </div>
       </header>
