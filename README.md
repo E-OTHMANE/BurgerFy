@@ -1,6 +1,25 @@
 
 # BurgerFy - Create Your Perfect Burger
 
+## About BurgerFy
+
+BurgerFy is an interactive web application that lets users create, customize, and share their perfect burger creations. With a sleek and intuitive interface, users can build their dream burgers by selecting from a variety of ingredients, save their creations, explore burgers made by other users, and manage their orders through a convenient cart system.
+
+### Key Features:
+- Interactive burger builder with real-time preview
+- Drag-and-drop ingredient customization
+- User authentication and profile management
+- Community burger gallery for sharing and inspiration
+- Shopping cart functionality
+- Order history tracking
+- Responsive design for all devices
+
+### Tech Stack:
+- Frontend: React with TypeScript and Tailwind CSS
+- Backend: Express.js and Node.js
+- Database: PostgreSQL with Drizzle ORM
+- Authentication: Express session with PostgreSQL store
+
 A web application for customizing and ordering burgers built with React, Express, and PostgreSQL.
 
 ## Prerequisites
