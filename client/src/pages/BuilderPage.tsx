@@ -52,7 +52,7 @@ export default function BuilderPage() {
             >
               <HomeIcon className="h-5 w-5" />
             </Button>
-            <h1 className="font-display text-2xl md:text-3xl">BurgerFy</h1>
+            <h1 className="font-display text-2xl md:text-3xl text-accent">BurgerFy</h1>
           </div>
           <div className="flex items-center gap-4">
             <Button 
