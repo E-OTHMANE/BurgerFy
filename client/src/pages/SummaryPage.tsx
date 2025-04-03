@@ -135,11 +135,28 @@ export default function SummaryPage() {
           <div className="bg-white rounded-xl shadow-lg p-6 md:p-10">
             {/* Completed Burger Image */}
             <div className="mb-6 text-center">
-              <img 
-                src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" 
-                alt="Completed burger" 
-                className="w-64 h-64 object-contain mx-auto rounded-lg" 
-              />
+              {ingredients.length > 0 ? (
+                <div className="w-64 h-64 mx-auto relative">
+                  {ingredients.map((ingredient, index) => (
+                    <img 
+                      key={index}
+                      src={ingredient.image} 
+                      alt={ingredient.name} 
+                      className="w-full h-full object-contain absolute top-0 left-0"
+                      style={{ 
+                        zIndex: ingredients.length - index,
+                        transform: `translateY(${index * -5}px)` 
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <img 
+                  src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" 
+                  alt="Completed burger" 
+                  className="w-64 h-64 object-contain mx-auto rounded-lg" 
+                />
+              )}
             </div>
             
             {/* Ingredients Summary */}

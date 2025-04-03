@@ -107,14 +107,38 @@ export default function ExplorePage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {displayedBurgers.map((burger) => {
-                // Parse ingredients from JSON string
-                const burgerIngredients = JSON.parse(burger.ingredients as string);
+                // Parse ingredients from JSON string safely
+                let burgerIngredients = [];
+                try {
+                  // Handle both string and object format
+                  if (typeof burger.ingredients === 'string') {
+                    burgerIngredients = JSON.parse(burger.ingredients);
+                  } else if (Array.isArray(burger.ingredients)) {
+                    burgerIngredients = burger.ingredients;
+                  } else if (burger.ingredients && typeof burger.ingredients === 'object') {
+                    burgerIngredients = [burger.ingredients];
+                  }
+                } catch (err) {
+                  console.error("Error parsing burger ingredients:", err);
+                }
+                
+                // Display first ingredient image or fallback
+                const firstIngredient = Array.isArray(burgerIngredients) && burgerIngredients.length > 0 
+                  ? burgerIngredients[0] 
+                  : null;
                 
                 return (
                   <Card key={burger.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                     <div className="bg-secondary/30 h-40 flex items-center justify-center">
-                      {/* Burger preview would go here */}
-                      <div className="text-4xl">🍔</div>
+                      {firstIngredient && firstIngredient.image ? (
+                        <img 
+                          src={firstIngredient.image} 
+                          alt={firstIngredient.name || 'Burger ingredient'} 
+                          className="h-32 w-32 object-contain"
+                        />
+                      ) : (
+                        <div className="text-4xl">🍔</div>
+                      )}
                     </div>
                     <CardContent className="p-4">
                       <h3 className="text-lg font-semibold mb-1 truncate">{burger.name}</h3>
@@ -124,7 +148,7 @@ export default function ExplorePage() {
                       <Separator className="my-3" />
                       <div className="flex justify-between items-center">
                         <p className="text-sm">
-                          <span className="font-medium">{burgerIngredients.length}</span> ingredients
+                          <span className="font-medium">{Array.isArray(burgerIngredients) ? burgerIngredients.length : 0}</span> ingredients
                         </p>
                         <p className="text-sm text-muted-foreground">
                           Creator ID: {burger.userId}

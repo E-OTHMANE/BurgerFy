@@ -156,28 +156,56 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {userBurgers?.map((burger) => (
-                    <Card key={burger.id} className="overflow-hidden">
-                      <div className="bg-muted h-32 flex items-center justify-center">
-                        {/* Burger preview would go here */}
-                        <div className="text-2xl">🍔</div>
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="text-lg font-semibold mb-1">{burger.name}</h3>
-                        <p className="text-muted-foreground text-sm">
-                          Created on {format(new Date(burger.createdAt), "MMM d, yyyy")}
-                        </p>
-                        <p className="text-sm mt-2">
-                          {JSON.parse(burger.ingredients as string).length} ingredients
-                        </p>
-                      </CardContent>
-                      <CardFooter className="p-4 pt-0">
-                        <Button variant="outline" size="sm" className="w-full" onClick={() => navigate(`/burgers/${burger.id}`)}>
-                          View Details
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  ))}
+                  {userBurgers?.map((burger) => {
+                    // Parse ingredients safely
+                    let burgerIngredients = [];
+                    try {
+                      if (typeof burger.ingredients === 'string') {
+                        burgerIngredients = JSON.parse(burger.ingredients);
+                      } else if (Array.isArray(burger.ingredients)) {
+                        burgerIngredients = burger.ingredients;
+                      } else if (burger.ingredients && typeof burger.ingredients === 'object') {
+                        burgerIngredients = [burger.ingredients];
+                      }
+                    } catch (err) {
+                      console.error("Error parsing burger ingredients:", err);
+                    }
+                    
+                    // Get first ingredient for display
+                    const firstIngredient = Array.isArray(burgerIngredients) && burgerIngredients.length > 0 
+                      ? burgerIngredients[0] 
+                      : null;
+                    
+                    return (
+                      <Card key={burger.id} className="overflow-hidden">
+                        <div className="bg-muted h-32 flex items-center justify-center">
+                          {firstIngredient && firstIngredient.image ? (
+                            <img 
+                              src={firstIngredient.image} 
+                              alt={firstIngredient.name || 'Burger ingredient'} 
+                              className="h-24 w-24 object-contain"
+                            />
+                          ) : (
+                            <div className="text-2xl">🍔</div>
+                          )}
+                        </div>
+                        <CardContent className="p-4">
+                          <h3 className="text-lg font-semibold mb-1">{burger.name}</h3>
+                          <p className="text-muted-foreground text-sm">
+                            Created on {format(new Date(burger.createdAt), "MMM d, yyyy")}
+                          </p>
+                          <p className="text-sm mt-2">
+                            {Array.isArray(burgerIngredients) ? burgerIngredients.length : 0} ingredients
+                          </p>
+                        </CardContent>
+                        <CardFooter className="p-4 pt-0">
+                          <Button variant="outline" size="sm" className="w-full" onClick={() => navigate(`/burgers/${burger.id}`)}>
+                            View Details
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
