@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { useCartStore } from "@/stores/cartStore";
 // Import framer-motion for animations
 
 export default function BurgerDetailsPage() {
@@ -86,12 +87,26 @@ export default function BurgerDetailsPage() {
     }
   }, [burger]);
 
+  // Import cart store
+  const { addItem } = useCartStore();
+  
   // Handler for adding burger to cart
   const handleAddToCart = () => {
-    toast({
-      title: "Added to Cart",
-      description: `${burger?.name} has been added to your cart.`,
-    });
+    if (burger && burgerIngredients.length > 0) {
+      addItem(burger, burgerIngredients);
+      toast({
+        title: "Added to Cart",
+        description: `${burger.name} has been added to your cart.`,
+      });
+      // Optional: navigate to cart
+      // navigate("/cart");
+    } else {
+      toast({
+        title: "Cannot add to cart",
+        description: "This burger has no ingredients",
+        variant: "destructive",
+      });
+    }
   };
 
   // Handler for creating a similar burger
