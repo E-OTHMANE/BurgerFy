@@ -36,6 +36,7 @@ export default function SummaryPage() {
         await apiRequest("POST", "/api/burgers", {
           name: burgerName,
           ingredients: JSON.stringify(ingredients),
+          createdAt: new Date().toISOString(),
         });
         
         // Invalidate burger queries
@@ -59,9 +60,30 @@ export default function SummaryPage() {
       clearIngredients();
       setLocation("/");
     } catch (error) {
+      console.error('Burger save error:', error);
+      
+      // Show more specific error message if available
+      let errorMessage = "Failed to add burger to cart. Please try again.";
+      
+      if (error instanceof Error) {
+        errorMessage = error.message || errorMessage;
+      } else if (typeof error === 'object' && error !== null) {
+        // Try to extract error details from response
+        try {
+          const errorObj = error as any;
+          if (errorObj.errors && Array.isArray(errorObj.errors)) {
+            errorMessage = errorObj.errors[0]?.message || errorMessage;
+          } else if (errorObj.message) {
+            errorMessage = errorObj.message;
+          }
+        } catch (e) {
+          // Fall back to generic message
+        }
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to add burger to cart. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     }
