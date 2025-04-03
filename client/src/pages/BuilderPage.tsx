@@ -66,6 +66,7 @@ export default function BuilderPage() {
             <Button 
               variant="ghost" 
               className="text-accent hover:text-accent/80 font-medium flex items-center gap-1"
+              onClick={() => setLocation("/cart")}
             >
               <ShoppingCartIcon className="h-5 w-5" />
               Cart
