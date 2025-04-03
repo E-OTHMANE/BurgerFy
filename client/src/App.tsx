@@ -6,6 +6,7 @@ import SummaryPage from "@/pages/SummaryPage";
 import AuthPage from "@/pages/auth-page";
 import ProfilePage from "@/pages/ProfilePage";
 import ExplorePage from "@/pages/ExplorePage";
+import BurgerDetailsPage from "@/pages/BurgerDetailsPage";
 import NotFound from "@/pages/not-found";
 import { ProtectedRoute } from "@/components/protected-route";
 import { AuthProvider } from "@/hooks/use-auth";
@@ -20,6 +21,7 @@ function Router() {
       <ProtectedRoute path="/summary" component={SummaryPage} />
       <Route path="/auth" component={AuthPage} />
       <Route path="/explore" component={ExplorePage} />
+      <Route path="/burgers/:id" component={BurgerDetailsPage} />
       <ProtectedRoute path="/profile" component={ProfilePage} />
       <Route component={NotFound} />
     </Switch>
